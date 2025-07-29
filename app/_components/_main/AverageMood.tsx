@@ -39,13 +39,13 @@ function AverageMood({ moodEntries }: moodEntriesProps) {
   const lastFiveAverageMood =
     lastFiveMoodEntries &&
     lastFiveMoodEntries?.reduce((acc, cur) => {
-      return cur.mood + acc;
+      return cur.mood !== null ? cur.mood + acc : 0;
     }, 0);
 
   const prevFiveAverageMood =
     prevFiveMoodEntries && prevFiveMoodEntries?.length >= 5
       ? prevFiveMoodEntries?.reduce((acc, cur) => {
-          return cur.mood + acc;
+          return cur.mood !== null ? cur.mood + acc : 0;
         }, 0)
       : 0;
 
