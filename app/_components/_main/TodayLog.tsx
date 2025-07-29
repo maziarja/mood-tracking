@@ -26,6 +26,7 @@ async function TodayLog({ moodEntries }: TodayLogProps) {
   const moodQuotes = await MoodQuotes.findOne();
   const quote =
     todayEntry &&
+    todayEntry.mood !== null &&
     moodQuotes?.moodQuotes[todayEntry.mood][Math.trunc(Math.random() * 5)];
 
   function showFeeling() {
