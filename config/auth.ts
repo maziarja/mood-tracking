@@ -31,16 +31,20 @@ export const config = {
         // logic to verify if the user exists
         await connectDB();
         const user = await User.findOne({ email: credentials.email }).lean();
+
         if (!user) return null;
 
         if (typeof credentials.password !== "string") {
           throw new Error("Invalid password");
         }
-        const isValid = await bcrypt.compare(
-          credentials.password,
-          user.password,
-        );
-        if (!isValid) return null;
+
+        if (user.password) {
+          const isValid = await bcrypt.compare(
+            credentials.password,
+            user.password,
+          );
+          if (!isValid) return null;
+        }
 
         return {
           id: user._id.toString(),
