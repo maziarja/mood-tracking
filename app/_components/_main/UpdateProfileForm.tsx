@@ -22,10 +22,16 @@ function UpdateProfileForm({ image, name }: UpdateProfileProps) {
     e.preventDefault();
     startTransition(async () => {
       const formData = new FormData(e.currentTarget);
+      const imageFile = formData.get("image") as File;
+      if (imageFile.size > 250 * 1024) {
+        setError("Image must be less than 250KB.");
+      } else {
+        setError("");
+      }
       const result = await updatingUserProfile(formData);
       if (result.error) {
         console.error(result.error);
-        setError(result.error);
+        // setError(result.error);
       } else {
         setIsSettingModalOpen(false);
       }
@@ -80,7 +86,7 @@ function UpdateProfileForm({ image, name }: UpdateProfileProps) {
 
             {error && (
               <p className="mt-2 flex items-center gap-2">
-                {/* <IoMdInformationCircle className="text-red-700" /> */}
+                <IoMdInformationCircle className="text-red-700" />
                 <span className="text-preset-9 text-red-700">{error}</span>
               </p>
             )}
