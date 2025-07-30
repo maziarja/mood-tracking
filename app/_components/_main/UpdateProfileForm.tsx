@@ -3,7 +3,7 @@
 import { updatingUserProfile } from "@/app/_actions/updatingUserProfile";
 import { useModal } from "@/app/contexts/ModalContext";
 import Image from "next/image";
-import { type FormEvent, useState, useTransition } from "react";
+import { ChangeEvent, type FormEvent, useState, useTransition } from "react";
 import { IoMdInformationCircle } from "react-icons/io";
 import avatarPlaceholder from "@/app/images/avatar-placeholder.svg";
 import SpinnerMini from "./_UI/SpinnerMini";
@@ -17,17 +17,18 @@ function UpdateProfileForm({ image, name }: UpdateProfileProps) {
   const [isPending, startTransition] = useTransition();
   const { setIsSettingModalOpen } = useModal();
   const [error, setError] = useState("");
+  const [imageState, setImageState] = useState("");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const imageFile = formData.get("image") as File;
+    if (imageFile.size > 250 * 1024) {
+      setError("Image must be less than 250KB.");
+    } else {
+      setError("");
+    }
     startTransition(async () => {
-      const formData = new FormData(e.currentTarget);
-      const imageFile = formData.get("image") as File;
-      if (imageFile.size > 250 * 1024) {
-        setError("Image must be less than 250KB.");
-      } else {
-        setError("");
-      }
       const result = await updatingUserProfile(formData);
       if (result.error) {
         console.error(result.error);
@@ -36,6 +37,14 @@ function UpdateProfileForm({ image, name }: UpdateProfileProps) {
         setIsSettingModalOpen(false);
       }
     });
+  }
+
+  function handleImageChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImageState(url);
+    }
   }
 
   return (
@@ -57,7 +66,7 @@ function UpdateProfileForm({ image, name }: UpdateProfileProps) {
         <div className="mb-4 flex items-center gap-5">
           <Image
             className="self-start"
-            src={image || avatarPlaceholder}
+            src={imageState || image || avatarPlaceholder}
             width={64}
             height={64}
             alt="profile picture"
@@ -76,6 +85,7 @@ function UpdateProfileForm({ image, name }: UpdateProfileProps) {
             >
               Upload
               <input
+                onChange={handleImageChange}
                 name="image"
                 type="file"
                 accept="image/png, image/jpeg"
