@@ -10,15 +10,17 @@ function OnboardingForm() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
   const [image, setImage] = useState("");
+
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const imageFile = formData.get("image") as File;
+    if (imageFile.size > 250 * 1024) {
+      setError("Image must be less than 250KB.");
+      return;
+    }
     startTransition(async () => {
-      const formData = new FormData(e.currentTarget);
-      const result = await onboardingUser(formData);
-      if (result.error) {
-        console.error(result.error);
-        setError(result.error);
-      }
+      await onboardingUser(formData);
     });
   }
 

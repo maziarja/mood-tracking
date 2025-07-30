@@ -25,17 +25,12 @@ function UpdateProfileForm({ image, name }: UpdateProfileProps) {
     const imageFile = formData.get("image") as File;
     if (imageFile.size > 250 * 1024) {
       setError("Image must be less than 250KB.");
-    } else {
-      setError("");
+      return;
     }
+
     startTransition(async () => {
-      const result = await updatingUserProfile(formData);
-      if (result.error) {
-        console.error(result.error);
-        // setError(result.error);
-      } else {
-        setIsSettingModalOpen(false);
-      }
+      await updatingUserProfile(formData);
+      setIsSettingModalOpen(false);
     });
   }
 
