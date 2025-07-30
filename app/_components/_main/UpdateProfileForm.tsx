@@ -3,9 +3,10 @@
 import { updatingUserProfile } from "@/app/_actions/updatingUserProfile";
 import { useModal } from "@/app/contexts/ModalContext";
 import Image from "next/image";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useState, useTransition } from "react";
 import { IoMdInformationCircle } from "react-icons/io";
 import avatarPlaceholder from "@/app/images/avatar-placeholder.svg";
+import SpinnerMini from "./_UI/SpinnerMini";
 
 type UpdateProfileProps = {
   image: string;
@@ -13,20 +14,22 @@ type UpdateProfileProps = {
 };
 
 function UpdateProfileForm({ image, name }: UpdateProfileProps) {
+  const [isPending, startTransition] = useTransition();
   const { setIsSettingModalOpen } = useModal();
   const [error, setError] = useState("");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-
-    const formData = new FormData(e.currentTarget);
-    const result = await updatingUserProfile(formData);
-    if (result.error) {
-      console.error(result.error);
-      setError(result.error);
-    } else {
-      setIsSettingModalOpen(false);
-    }
+    startTransition(async () => {
+      const formData = new FormData(e.currentTarget);
+      const result = await updatingUserProfile(formData);
+      if (result.error) {
+        console.error(result.error);
+        setError(result.error);
+      } else {
+        setIsSettingModalOpen(false);
+      }
+    });
   }
 
   return (
@@ -77,15 +80,18 @@ function UpdateProfileForm({ image, name }: UpdateProfileProps) {
 
             {error && (
               <p className="mt-2 flex items-center gap-2">
-                <IoMdInformationCircle className="text-red-700" />
+                {/* <IoMdInformationCircle className="text-red-700" /> */}
                 <span className="text-preset-9 text-red-700">{error}</span>
               </p>
             )}
           </div>
         </div>
       </div>
-      <button className="text-preset-5 text-neutral-0 w-full cursor-pointer rounded-[10px] bg-blue-600 px-8 py-3 focus:outline-2 focus:outline-offset-4 focus:outline-blue-600">
-        Save changes
+      <button
+        disabled={isPending}
+        className="text-preset-5 text-neutral-0 w-full cursor-pointer rounded-[10px] bg-blue-600 px-8 py-3 focus:outline-2 focus:outline-offset-4 focus:outline-blue-600"
+      >
+        {!isPending ? "Save changes" : <SpinnerMini />}
       </button>
     </form>
   );

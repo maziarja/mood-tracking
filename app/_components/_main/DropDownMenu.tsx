@@ -1,11 +1,12 @@
 "use client";
 import { MdOutlineSettings } from "react-icons/md";
 import { FiLogOut } from "react-icons/fi";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { Session } from "next-auth";
 import { signOut } from "next-auth/react";
 import { useModal } from "@/app/contexts/ModalContext";
 import { AiOutlineUserDelete } from "react-icons/ai";
+import SpinnerMini from "./_UI/SpinnerMini";
 
 type DropDownMenuProps = {
   close: () => void;
@@ -15,6 +16,7 @@ type DropDownMenuProps = {
 function DropDownMenu({ close, session }: DropDownMenuProps) {
   const ref = useRef<HTMLDivElement>(null);
   const { setIsSettingModalOpen, setIsDeleteAccountModalOpen } = useModal();
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
     function handleClick(e: Event) {
@@ -58,11 +60,22 @@ function DropDownMenu({ close, session }: DropDownMenuProps) {
         <p className="text-preset-7 text-neutral-900">Setting</p>
       </button>
       <button
-        onClick={() => signOut()}
+        disabled={isPending}
+        onClick={() =>
+          startTransition(async () => {
+            signOut();
+          })
+        }
         className="mb-3 flex cursor-pointer items-center gap-2"
       >
-        <FiLogOut />
-        <p className="text-preset-7 text-neutral-900">Logout</p>
+        {!isPending ? (
+          <>
+            <FiLogOut />
+            <p className="text-preset-7 text-neutral-900">Logout</p>
+          </>
+        ) : (
+          <SpinnerMini />
+        )}
       </button>
       <button
         onClick={() => {

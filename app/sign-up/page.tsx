@@ -10,8 +10,8 @@ async function Page() {
   if (session && session.user) redirect("/");
 
   return (
-    <div className="flex min-h-dvh flex-col items-center gap-8 px-4 md:gap-12">
-      <div className="mt-20">
+    <div className="flex min-h-dvh flex-col items-center gap-8 px-4 py-20 md:gap-12">
+      <div>
         <Logo />
       </div>
       <div className="bg-neutral-0 grid rounded-2xl px-4 py-10 md:w-[530px] md:px-8">
@@ -28,7 +28,7 @@ async function Page() {
             Log in.
           </Link>
         </p>
-        <span className="text-preset-6-r mx-auto mb-3 text-neutral-600">
+        <span className="text-preset-6-r mx-auto mb-4 text-neutral-600">
           Or Sign in with{" "}
         </span>
         <SignInGoogleButton />

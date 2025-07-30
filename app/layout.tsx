@@ -21,7 +21,9 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${redditSans.className} light-gradient antialiased`}>
+      <body
+        className={`${redditSans.className} light-gradient min-h-dvh antialiased`}
+      >
         <LogProvider>
           <ModalProvider>{children}</ModalProvider>
         </LogProvider>

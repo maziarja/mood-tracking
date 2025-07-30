@@ -1,23 +1,34 @@
 "use client";
 import Image from "next/image";
 import avatarPlaceholder from "@/app/images/avatar-placeholder.svg";
-import { FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useState, useTransition } from "react";
 import { IoMdInformationCircle } from "react-icons/io";
 import { onboardingUser } from "@/app/_actions/onbordingUser";
 import StartTrackingButton from "./StartTrackingButton";
 
 function OnboardingForm() {
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState("");
+  const [image, setImage] = useState("");
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const result = await onboardingUser(formData);
-    if (result.error) {
-      console.error(result.error);
-      setError(result.error);
-    }
+    startTransition(async () => {
+      const formData = new FormData(e.currentTarget);
+      const result = await onboardingUser(formData);
+      if (result.error) {
+        console.error(result.error);
+        setError(result.error);
+      }
+    });
   }
 
+  function handleImageChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      const url = URL.createObjectURL(file);
+      setImage(url);
+    }
+  }
   return (
     <form onSubmit={handleSubmit} className="grid">
       <div className="mb-8 grid">
@@ -37,7 +48,7 @@ function OnboardingForm() {
         <div className="mb-4 flex items-center gap-5">
           <Image
             className="self-start"
-            src={avatarPlaceholder}
+            src={image || avatarPlaceholder}
             width={64}
             height={64}
             alt="avatar placeholder"
@@ -56,6 +67,7 @@ function OnboardingForm() {
             >
               Upload
               <input
+                onChange={handleImageChange}
                 name="image"
                 type="file"
                 accept="image/png, image/jpeg"
@@ -73,7 +85,7 @@ function OnboardingForm() {
           </div>
         </div>
       </div>
-      <StartTrackingButton />
+      <StartTrackingButton isPending={isPending} />
     </form>
   );
 }

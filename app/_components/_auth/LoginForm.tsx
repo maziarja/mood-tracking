@@ -1,30 +1,33 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import LoginButton from "./LoginButton";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { IoMdInformationCircle } from "react-icons/io";
 
 function LoginForm() {
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const [error, setError] = useState("");
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    startTransition(async () => {
+      const formData = new FormData(e.currentTarget);
+      const email = formData.get("email") as string;
+      const password = formData.get("password") as string;
 
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (res.error) {
+        setError("Invalid email or password");
+      } else {
+        router.push("/");
+      }
     });
-
-    if (res.error) {
-      setError("Invalid email or password");
-    } else {
-      router.push("/");
-    }
   }
 
   return (
@@ -39,7 +42,7 @@ function LoginForm() {
             id="email"
             type="email"
             placeholder="name@mail.com"
-            className={`text-preset-6-r rounded-[10px] px-4 py-3 ring-1 ${error ? "ring-red-700" : "ring-neutral-600"} `}
+            className={`text-preset-6-r rounded-[10px] px-4 py-3 ring-1 ${error ? "ring-red-700" : "ring-neutral-300"} `}
           />
           {error && (
             <p className="flex items-center gap-2">
@@ -59,7 +62,7 @@ function LoginForm() {
             name="password"
             id="password"
             type="password"
-            className={`text-preset-6-r rounded-[10px] px-4 py-3 ring-1 ${error ? "ring-red-700" : "ring-neutral-600"} `}
+            className={`text-preset-6-r rounded-[10px] px-4 py-3 ring-1 ${error ? "ring-red-700" : "ring-neutral-300"} `}
           />
           {error && (
             <p className="flex items-center gap-2">
@@ -69,7 +72,7 @@ function LoginForm() {
           )}
         </div>
       </div>
-      <LoginButton />
+      <LoginButton isPending={isPending} />
     </form>
   );
 }

@@ -34,6 +34,8 @@ export async function onboardingUser(formData: FormData) {
     };
   }
 
+  // Upload profile picture
+
   const imageBuffer = Buffer.from(await imageFile.arrayBuffer());
   const base64 = imageBuffer.toString("base64");
   const dataUri = `data:${imageFile.type};base64,${base64}`;

@@ -21,6 +21,18 @@ export async function updatingUserProfile(formData: FormData) {
     return { success: true };
   }
 
+  // Delete last profile picture from cloudinary
+  const user = await User.findById(session?.user && session?.user.id);
+  if (user && "image" in user) {
+    const isCloudinaryImage =
+      user.image?.split("/").at(2) === "res.cloudinary.com";
+    if (isCloudinaryImage) {
+      const userImage = user.image.split("/").at(-1)?.split(".").at(0);
+      await cloudinary.uploader.destroy("mood-tracking/" + userImage);
+    }
+  }
+
+  // Upload new profile picture
   if (!["image/jpeg", "image/png"].includes(imageFile.type)) {
     return {
       error: "Unsupported file type. Please upload a PNG or JPEG",
