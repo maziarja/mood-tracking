@@ -89,7 +89,6 @@ export const config = {
     },
 
     async session({ session, token }) {
-      // for credential
       if (token) session.user.id = token.id as string;
 
       await connectDB();
